@@ -1,5 +1,8 @@
 package com.hmhs.portal;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -7,8 +10,12 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.client.RestTemplate;
+
+import com.hmhs.portal.util.UserContextInterceptor;
 
 /**
  * 
@@ -37,4 +44,18 @@ public class PortalApplication {
     public RestTemplate restTemplate() {
         return new RestTemplate();
     }
+	
+	@Primary
+	@Bean
+	public RestTemplate getCustomRestTemplete() {
+		RestTemplate template = new RestTemplate();
+		List<ClientHttpRequestInterceptor> interceptors = template.getInterceptors();
+		if(interceptors == null) {
+			template.setInterceptors(Collections.singletonList(new UserContextInterceptor()));
+		}else {
+			interceptors.add(new UserContextInterceptor());
+			template.setInterceptors(interceptors);
+		}
+		return template;
+	}
 }

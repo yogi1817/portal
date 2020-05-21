@@ -2,7 +2,7 @@ server:
   port: 8081
   
 portal:
-  clientType: feignClient
+  clientType: RestTempleteCallingIPAddressDirectly
   
 spring:
   application:
